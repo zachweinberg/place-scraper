@@ -9,8 +9,8 @@ function sleep(milliseconds) {
   return new Promise(resolve => setTimeout(resolve, milliseconds));
 }
 
-async function getAllRestaurants() {
-  const restaurants = [];
+async function getAllPlaces() {
+  const places = [];
   const COORDS = process.env.COORDS;
   const RADIUS = process.env.RADIUS;
   let url = `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${COORDS}&type=restaurant&radius=${RADIUS}&key=${API_KEY}`;
@@ -21,15 +21,16 @@ async function getAllRestaurants() {
       console.log("> Fetching all places...");
       const { data } = await axios.get(url);
 
-      for (const restaurant of data.results) {
-        restaurants.push({
-          name: restaurant.name,
-          placeId: restaurant.place_id
+      for (const place of data.results) {
+        places.push({
+          name: place.name,
+          placeId: place.place_id
         });
       }
 
       if (data.next_page_token) {
         await sleep(2700);
+        // Can change type below
         url = `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${COORDS}&type=restaurant&radius=${RADIUS}&key=${API_KEY}&pagetoken=${data.next_page_token}`;
       } else {
         nextPage = false;
@@ -39,13 +40,14 @@ async function getAllRestaurants() {
     }
   }
 
-  return restaurants;
+  return places;
 }
 
-async function getRestaurantDetail(placeId) {
+async function getPlaceDetail(placeId) {
   try {
     console.log("> Fetching place...");
     const { data } = await axios.get(
+      // Can change fields below
       `https://maps.googleapis.com/maps/api/place/details/json?place_id=${placeId}&fields=name,website,formatted_address,formatted_phone_number&key=${API_KEY}`
     );
     return data.result;
@@ -56,19 +58,19 @@ async function getRestaurantDetail(placeId) {
 
 async function main() {
   try {
-    const restaurants = await getAllRestaurants();
+    const places = await getAllPlaces();
 
-    const formattedRestaurants = [];
+    const formattedPlaces = [];
 
-    for (const restaurant of restaurants) {
+    for (const place of places) {
       const {
         name,
         website,
         formatted_address,
         formatted_phone_number
-      } = await getRestaurantDetail(restaurant.placeId);
+      } = await getPlaceDetail(place.placeId);
 
-      formattedRestaurants.push({
+      formattedPlaces.push({
         name,
         website,
         address: formatted_address,
@@ -76,7 +78,7 @@ async function main() {
       });
     }
 
-    const csv = new ObjectsToCsv(formattedRestaurants);
+    const csv = new ObjectsToCsv(formattedPlaces);
     await csv.toDisk("./places.csv");
   } catch (err) {
     console.error(err);
