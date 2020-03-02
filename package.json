@@ -1,0 +1,17 @@
+{
+  "name": "places-scraper",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js"
+  },
+  "keywords": [],
+  "author": "Zach Weinberg",
+  "license": "MIT",
+  "dependencies": {
+    "axios": "^0.19.2",
+    "dotenv": "^8.2.0",
+    "objects-to-csv": "^1.3.6"
+  }
+}
