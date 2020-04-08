@@ -12,8 +12,7 @@ function sleep(milliseconds) {
 
 async function getAllPlaces() {
   const places = [];
-  const COORDS = process.env.COORDS;
-  const RADIUS = process.env.RADIUS;
+  const { COORDS, RADIUS } = process.env;
   let url = `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${COORDS}&type=restaurant&radius=${RADIUS}&key=${API_KEY}`;
   let nextPage = true;
 
