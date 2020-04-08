@@ -1,12 +1,13 @@
 require("dotenv").config();
 const axios = require("axios");
 const ObjectsToCsv = require("objects-to-csv");
+const cp = require("child_process");
 
 const API_KEY = process.env.GOOGLE_MAPS_API_KEY;
 
 function sleep(milliseconds) {
   console.log("> Sleeping...");
-  return new Promise(resolve => setTimeout(resolve, milliseconds));
+  return new Promise((resolve) => setTimeout(resolve, milliseconds));
 }
 
 async function getAllPlaces() {
@@ -24,7 +25,7 @@ async function getAllPlaces() {
       for (const place of data.results) {
         places.push({
           name: place.name,
-          placeId: place.place_id
+          placeId: place.place_id,
         });
       }
 
@@ -67,19 +68,22 @@ async function main() {
         name,
         website,
         formatted_address,
-        formatted_phone_number
+        formatted_phone_number,
       } = await getPlaceDetail(place.placeId);
 
       formattedPlaces.push({
         name,
         website,
         address: formatted_address,
-        phone: formatted_phone_number
+        phone: formatted_phone_number,
       });
     }
 
     const csv = new ObjectsToCsv(formattedPlaces);
     await csv.toDisk("./places.csv");
+    cp.exec("open places.csv", (error, stdout, stderr) => {
+      if (stderr) console.error(stderr);
+    });
   } catch (err) {
     console.error(err);
   }
